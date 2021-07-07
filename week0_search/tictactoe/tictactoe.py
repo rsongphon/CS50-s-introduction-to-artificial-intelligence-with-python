@@ -74,26 +74,81 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+     # check function that recieve of array to check if all element is same
+     # count the first element if the count is equal to number of element in array then all element are the same
+     # also the first element must be player X or O not empty space
+    def all_same(l):
+        if (l.count(l[0]) == len(l)) and (l[0] != EMPTY):
+            return True
+        else:
+            return False
+
     # check vertical
     # Save player state on the first row of each column
 
+    # iterate 3 column , board[0] is first row >>> len(borad[0] is number of column)
+    for col in range(len(board[0])):
+        # construct array of board result in each column
+        column = []
+        # iterate each row and grab element in column base on "col"
+        for row in board:
+            column.append(row[col])
+        
+        # finish 1 column then check result
+        if all_same(column):
+            player_side = column[0]
+            return player_side # winner
+        
 
-    # check horiontal
-    # Save player state on the first column of the row then compare to the rest (len must be 3)
-    # If not proceed to next row
-    # use list.count the first element in the row
-    # Assume that it 3x3 board only
-    
+            
+    # check horizontal
+    # can use whole row in each iteration to construct the scheck array
     for row in board:
-        if (row.count(row[0]) == 3) and (row[0] != EMPTY):
-            win_side = row[0]
-            return win_side
+        check_list = row
+        if all_same(check_list):
+            player_side = check_list[0]
+            return player_side # winner
 
 
     # check diagonal
 
+    # check \ way
+    # grab element 0,0 1,1 2,2 ....
+    diag_array = []
+    
+    for i ,row in enumerate(board):
+        for j , col in enumerate(row):
+            if i == j:
+                diag_array.append(col)
+
+    if all_same(diag_array):
+        player_side = diag_array[0]
+        return player_side # winner
+
+    # check / way
+    # grab element 0,2 1,1 2,0 ....
+    # i count up 1 in each iteration from 0 to the size-1 of the board....
+    # so i is iteration in for loop >>>> 0 1 2
+    # j count down 1 in each iteration from the size-1 of the board to 0 ...
+    # j is reverse >>>> 2 1 0 
+
+    reverse_diag_array = []
+
+    #len(board) = number of row >>> board is rectagle row = column = size >>> 3x3 = 3
+    # range(len(board)) return iterator of size board >> 0 1 2
+    # reversed(range(len(board))) return reversed iterator >>> 2 1 0
+    # enemerate(reversed(range(len(board)))) return number of itertion 0 1 2 for use with i 
+    for i , j in enumerate(reversed(range(len(board)))):
+        reverse_diag_array.append(board[i][j])
+    
+    if all_same(reverse_diag_array):
+        player_side = reverse_diag_array[0]
+        return player_side # winner
+
+
 
     return None
+
 
 def terminal(board):
     """

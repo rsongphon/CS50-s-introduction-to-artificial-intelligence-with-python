@@ -16,9 +16,9 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY]]
     '''
 
-    return [[O, EMPTY, O],
-            [X, EMPTY, O],
-            [X, EMPTY, O]]
+    return [[O, X, X],
+            [O, X, O],
+            [EMPTY, X, X]]
 
 def player(board):
     """
@@ -104,7 +104,7 @@ def winner(board):
         
 
             
-    # check horiontal
+    # check horizontal
     # can use whole row in each iteration to construct the scheck array
     for row in board:
         check_list = row
@@ -114,6 +114,40 @@ def winner(board):
 
 
     # check diagonal
+
+    # check \ way
+    # grab element 0,0 1,1 2,2 ....
+    diag_array = []
+    
+    for i ,row in enumerate(board):
+        for j , col in enumerate(row):
+            if i == j:
+                diag_array.append(col)
+
+    if all_same(diag_array):
+        player_side = diag_array[0]
+        return player_side # winner
+
+    # check / way
+    # grab element 0,2 1,1 2,0 ....
+    # i count up 1 in each iteration from 0 to the size-1 of the board....
+    # so i is iteration in for loop >>>> 0 1 2
+    # j count down 1 in each iteration from the size-1 of the board to 0 ...
+    # j is reverse >>>> 2 1 0 
+
+    reverse_diag_array = []
+
+    #len(board) = number of row >>> board is rectagle row = column = size >>> 3x3 = 3
+    # range(len(board)) return iterator of size board >> 0 1 2
+    # reversed(range(len(board))) return reversed iterator >>> 2 1 0
+    # enemerate(reversed(range(len(board)))) return number of itertion 0 1 2 for use with i 
+    for i , j in enumerate(reversed(range(len(board)))):
+        reverse_diag_array.append(board[i][j])
+    
+    if all_same(reverse_diag_array):
+        player_side = reverse_diag_array[0]
+        return player_side # winner
+
 
 
     return None
