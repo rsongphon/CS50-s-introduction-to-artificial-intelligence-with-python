@@ -77,6 +77,9 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
+     # check function that recieve of array to check if all element is same
+     # count the first element if the count is equal to number of element in array then all element are the same
+     # also the first element must be player X or O not empty space
     def all_same(l):
         if (l.count(l[0]) == len(l)) and (l[0] != EMPTY):
             return True
@@ -102,11 +105,7 @@ def winner(board):
 
             
     # check horiontal
-
-    # Save player state on the first column of the row then compare to the rest (len must be 3)
-    # If not proceed to next row
-    # use list.count the first element in the row
-    
+    # can use whole row in each iteration to construct the scheck array
     for row in board:
         check_list = row
         if all_same(check_list):
