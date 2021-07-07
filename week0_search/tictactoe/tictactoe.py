@@ -154,14 +154,33 @@ def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    raise NotImplementedError
+    # Tie condition check first
+    # If all cell occupie that is not none then it a tie
+    tie_count = 0
+    for row in board:
+        if EMPTY not in row:
+            tie_count += 1
+    if tie_count == len(board):
+        return True # Game over
+
+    # Game over is know by either X or O from  winner function
+    if winner(board) != None:
+        return True
+    # if recieve None that mean game is still in progess
+    else:
+        return False
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    if winner(board) == X:
+        return 1
+    elif winner(board) == O:
+        return -1
+    else:
+        return 0
 
 
 def minimax(board):

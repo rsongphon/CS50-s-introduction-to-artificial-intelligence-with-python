@@ -16,9 +16,9 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY]]
     '''
 
-    return [[O, X, X],
-            [O, X, O],
-            [EMPTY, X, X]]
+    return [[O, EMPTY, EMPTY],
+            [O, O, EMPTY],
+            [O, EMPTY, O]]
 
 def player(board):
     """
@@ -149,8 +149,40 @@ def winner(board):
         return player_side # winner
 
 
-
+    # Game in progress or TIE
     return None
+
+
+def terminal(board):
+    """
+    Returns True if game is over, False otherwise.
+    """
+    # Tie condition check first
+    tie_count = 0
+    for row in board:
+        if EMPTY not in row:
+            tie_count += 1
+    if tie_count == len(board):
+        return True # Game over
+
+    # Game over is know by either X or O from  winner function
+    if winner(board) != None:
+        return True
+    # if recieve None that mean game is still in progess
+    else:
+        return False
+
+def utility(board):
+    """
+    Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
+    """
+    if winner(board) == X:
+        return 1
+    elif winner(board) == O:
+        return -1
+    else:
+        return 0
+
 
 start_board = initial_state()
 
@@ -161,4 +193,6 @@ start_board = initial_state()
 
 #print(result(start_board,(1,3)))
 
-print(winner(start_board))
+#print(terminal(start_board))
+
+print(utility(start_board))
