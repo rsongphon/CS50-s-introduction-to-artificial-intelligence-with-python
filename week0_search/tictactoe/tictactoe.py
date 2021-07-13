@@ -46,7 +46,7 @@ def actions(board):
     for i , row in enumerate(board):
         for j , col in enumerate(row):
             if col == EMPTY:
-                possible_action.add((i,j))
+                possible_move.add((i,j))
 
     return possible_move
 
@@ -59,14 +59,14 @@ def result(board, action):
     # need to keep original board to trace back the computation
 
     next_board = copy.deepcopy(board)
-    print(id(board),id(next_board)) # debug
+    #print(id(board),id(next_board)) # debug
 
     # Modify the board with the player turn value (X or O) in location of cell (action(i,j))
     # action 0 is i action 1 is j 
     try:
-        next_board[action(0)][action(1)] = player(board)
+        next_board[action[0]][action[1]] = player(board)
     except Exception as e:
-        print(e)
+        print('Error : ',e)
 
     return next_board
 
@@ -187,4 +187,53 @@ def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    # Given board is any state
+
+    def max_value(board):
+        v = -100
+        # Base case of recursive
+        optimal_action = ()
+        if terminal(board):
+            return utility(board) , optimal_action
+        for possible_action in actions(board):
+            # compare the current value with return value if choose this action
+            # And choose maximum value of the action of the possible case from min player
+            # max() function return largest value between two value
+            min_val = min_value(result(board,possible_action))[0]
+            if min_val > v:
+                v = min_val
+                optimal_action = possible_action
+        return v , optimal_action
+
+    def min_value(board):
+        v = 100
+        # Base case of recursive
+        optimal_action = ()
+        if terminal(board):
+            return utility(board) , optimal_action
+        for possible_action in actions(board):
+            # compare the current value with return value if choose this action
+            # And choose minimum value of the action of the possible case from min player
+            # Min() function return smallest value between two value
+            max_val = max_value(result(board,possible_action))[0]
+            if max_val < v:
+                v = max_val
+                optimal_action = possible_action
+        return v , optimal_action
+
+
+    # if this is a terminal board return None
+    if terminal(board):
+        return None
+    
+    # Check current player
+    current_player = player(board)
+
+    if current_player == X:
+        # Player X Choose to Max the value
+        # Choose the highest value of Min-value player
+        return max_value(board)[1]
+    else:
+        # Player O Choose to Min the value
+        # Choose the lowest value of Max-value player
+        return min_value(board)[1]

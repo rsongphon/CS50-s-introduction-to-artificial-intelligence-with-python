@@ -1,3 +1,7 @@
+"""
+Tic Tac Toe Player
+"""
+
 import math
 import copy
 
@@ -10,15 +14,10 @@ def initial_state():
     """
     Returns starting state of the board.
     """
-    '''
     return [[EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY]]
-    '''
 
-    return [[X, O, EMPTY],
-            [EMPTY, X, EMPTY],
-            [EMPTY, O, X]]
 
 def player(board):
     """
@@ -31,25 +30,26 @@ def player(board):
         x_count = x_count + row.count(X)
         o_count = o_count + row.count(O)
     
-    if (x_count == 0) and (o_count == 0):
+    if (x_count == 0) and (o_count == 0): # initial state is X (board is all empty)
         return X
-    elif x_count > o_count:
+    elif x_count > o_count: # (after intial state x first move)
         return O
-    elif x_count <= o_count:
+    elif x_count <= o_count: # O always follow up X
         return X
 
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board. i is row (0,1,2)j is column (0,1,2)
     """
-    possible_action = set()
+    possible_move = set()
 
     for i , row in enumerate(board):
         for j , col in enumerate(row):
             if col == EMPTY:
-                possible_action.add((i,j))
+                possible_move.add((i,j))
 
-    return possible_action
+    return possible_move
+
 
 def result(board, action):
     """
@@ -64,12 +64,9 @@ def result(board, action):
     # Modify the board with the player turn value (X or O) in location of cell (action(i,j))
     # action 0 is i action 1 is j 
     try:
-        if next_board[action[0]][action[1]] != EMPTY:
-            raise Exception 
         next_board[action[0]][action[1]] = player(board)
-        
     except Exception as e:
-        print(e)
+        print('Error : ',e)
 
     return next_board
 
@@ -149,7 +146,7 @@ def winner(board):
         return player_side # winner
 
 
-    # Game in progress or TIE
+
     return None
 
 
@@ -158,6 +155,7 @@ def terminal(board):
     Returns True if game is over, False otherwise.
     """
     # Tie condition check first
+    # If all cell occupie that is not none then it a tie
     tie_count = 0
     for row in board:
         if EMPTY not in row:
@@ -171,6 +169,7 @@ def terminal(board):
     # if recieve None that mean game is still in progess
     else:
         return False
+
 
 def utility(board):
     """
@@ -191,7 +190,7 @@ def minimax(board):
     # Given board is any state
 
     def max_value(board):
-        max_val = -100
+        v = -100
         # Base case of recursive
         optimal_action = ()
         if terminal(board):
@@ -200,14 +199,14 @@ def minimax(board):
             # compare the current value with return value if choose this action
             # And choose maximum value of the action of the possible case from min player
             # max() function return largest value between two value
-            val = max_value(result(board,possible_action))[0]
-            if max_val < val:
-                max_val = val
+            min_val = min_value(result(board,possible_action))[0]
+            if min_val > v:
+                v = min_val
                 optimal_action = possible_action
-            return max_val , optimal_action
+            return v , optimal_action
 
     def min_value(board):
-        min_val = 100
+        v = 100
         # Base case of recursive
         optimal_action = ()
         if terminal(board):
@@ -216,11 +215,11 @@ def minimax(board):
             # compare the current value with return value if choose this action
             # And choose minimum value of the action of the possible case from min player
             # Min() function return smallest value between two value
-            val = min_value(result(board,possible_action))[0]
-            if min_val > val:
-                min_val = val
+            max_val = max_value(result(board,possible_action))[0]
+            if max_val < v:
+                v = max_val
                 optimal_action = possible_action
-            return min_val , optimal_action
+            return v , optimal_action
 
 
     # if this is a terminal board return None
@@ -238,19 +237,3 @@ def minimax(board):
         # Player O Choose to Min the value
         # Choose the lowest value of Max-value player
         return min_value(board)[1]
-    
-
-start_board = initial_state()
-
-#print(player(start_board))
-
-#print(actions(start_board))
-
-
-#print(result(start_board,(1,3)))
-
-#print(terminal(start_board))
-
-#print(utility(start_board))
-
-print(minimax(start_board))
