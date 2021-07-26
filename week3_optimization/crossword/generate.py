@@ -90,7 +90,22 @@ class CrosswordCreator():
         Enforce node and arc consistency, and then solve the CSP.
         """
         self.enforce_node_consistency()
+
+        '''
+        for test to see overlap variable
+        for var in self.crossword.variables:
+            print(f'{var} overlap with {self.crossword.neighbors(var)}')
+        
+        ''' 
+        #print(self.crossword.variables)
+        #self.revise(Variable(4, 4 ,'across', 5),Variable(1, 7, 'down', 7))
+        #self.revise(Variable(2, 1 ,'down', 5),Variable(2, 1, 'across', 12))
+        self.revise(Variable(2, 1, 'across', 12),Variable(1, 7, 'down', 7))
+
         self.ac3()
+
+        
+
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
@@ -99,7 +114,23 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+
+        '''
+        psuedo code
+        loop for every variable in crossword puzle (self.crossword.variables)
+            loop for every word in that variabel domain  (self.domains[var])
+                if lenght of word in domain != lenght of that variable
+                    remove that word
+        '''
+        for var in self.crossword.variables:
+            word_domain_copy = self.domains[var].copy() # copy set of domain word
+            for word in self.domains[var]:
+                if len(word) != var.length:
+                    word_domain_copy.remove(word)
+            self.domains[var] = word_domain_copy
+            #print(f'{var.length} : {self.domains[var]}')
+        
+    
 
     def revise(self, x, y):
         """
@@ -110,7 +141,58 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+        '''
+        in crossword if 2 variable have overlap each other
+        it must be the same letter.
+
+        A word that x have must have the same letter in word in y domain in the same location
+
+        ** remove word in x that have dirrent letter in same  location of y **
+
+        '''
+        '''
+        crossword.overlaps is a dictionary mapping a pair of variables to their overlap. For any two distinct variables v1 and v2, 
+        crossword.overlaps[v1, v2] will be None if the two variables have no overlap, and will be a pair of integers (i, j) 
+        if the variables do overlap. The pair (i, j) should be interpreted to mean that the ith character of v1’s value must be the 
+        same as the jth character of v2’s value.
+        
+        '''
+        revise = False
+
+        x_domain_copy = self.domains[x].copy()
+        print(x_domain_copy)
+
+        # check to see if x overlap with y
+        if self.crossword.overlaps[x,y] != None:
+            
+            # overlap
+            #  ith character of X value
+            # same as the jth character of y
+            i , j = self.crossword.overlaps[x,y]
+            print(f'Overlap at i:{i}, j:{j}')
+            word_keep = set()
+            for x_word in  self.domains[x]:
+                for y_word in self.domains[y]:
+                    #if ith character of X value same as jth character of y >> keep word for domain x
+                    if x_word[i] == y_word[j]:
+                        print(f'x word: {x_word}   y word: {y_word}')
+                        print(f'keep word {x_word}')
+                        word_keep.add(x_word)
+                        #x_domain_copy.remove(x_word)
+                        revise = True
+            
+            if len(word_keep) != 0:
+                for word in  self.domains[x]:
+                    if word not in word_keep:
+                        x_domain_copy.remove(word)
+        
+        self.domains[x] = x_domain_copy
+        print(self.domains[x])
+        return revise
+
+
+
+
 
     def ac3(self, arcs=None):
         """
