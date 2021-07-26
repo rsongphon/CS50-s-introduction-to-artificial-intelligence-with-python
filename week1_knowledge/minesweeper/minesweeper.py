@@ -1,5 +1,6 @@
 import itertools
 import random
+import copy
 
 
 class Minesweeper():
@@ -131,7 +132,7 @@ class Sentence():
 
         '''
 
-        if len(self.cells) == self.count:
+        if self.count == len(self.cells) :
             return self.cells
 
     def known_safes(self):
@@ -233,6 +234,8 @@ class MinesweeperAI():
         to mark that cell as safe as well.
         """
         self.safes.add(cell)
+        #
+        # print(self.safes)
         for sentence in self.knowledge: # need to remove that cell in every knowledge
             sentence.mark_safe(cell)
 
@@ -269,14 +272,13 @@ class MinesweeperAI():
         # update self.safes = set()
 
         '''
-        self.safes.add(cell)
+        self.mark_safe(cell)
         '''
 
         #3) add a new sentence to the AI's knowledge base
         # based on the value of `cell` and `count`
         
         '''
-        
 
         near_cell_set = self.neighbour_cell(cell)
         new_sentence = Sentence(near_cell_set,count)
@@ -295,7 +297,7 @@ class MinesweeperAI():
         and call method known_mines() and known_mines() to check if it can be mark as safe or mine
         '''
 
-    
+
         self.check_knowledge(self.knowledge)
 
 
@@ -326,11 +328,15 @@ class MinesweeperAI():
                     new_infer_knowledge.append(add_sentence)
 
             # After get new sentence ->>> append to knowledge base
+        
 
-        self.knowledge = self.knowledge + new_infer_knowledge
-
-        self.check_knowledge(self.knowledge) # check again for new inference
-
+        #self.knowledge = self.knowledge + new_infer_knowledge
+        
+        if len(new_infer_knowledge) != 0:
+            #print('inference')
+            self.check_knowledge(new_infer_knowledge) # check again for new inference
+            #self.knowledge = self.knowledge + new_infer_knowledge
+        
 
     def make_safe_move(self):
         """
@@ -426,15 +432,17 @@ class MinesweeperAI():
 
                 if (0 <= i <= self.height) and (0 <= j <= self.width):
                     # Be sure to only include cells whose state is still undetermined in the sentence
-                    if (cell in self.mines) or (cell in self.safes):
-                        pass
-                    neighbour_set.add((i,j))
+                    if (cell not in self.mines) or (cell in self.safes):
+                        neighbour_set.add((i,j))
         
         return neighbour_set
 
     def check_knowledge(self,knowledge):
-        for sentence in knowledge:
-            print(sentence)
+
+        # copies the knowledge to operate on copy
+        knowledge_copy = copy.deepcopy(knowledge)
+
+        for sentence in knowledge_copy:
             # Return the set of cell that is safe or mine : None otherwise
             safe_cell_set = sentence.known_safes()
             mine_cell_set = sentence.known_mines()
@@ -451,12 +459,15 @@ class MinesweeperAI():
                 
                 for cell in add_safe:
                     self.mark_safe(cell)
+                    
+                    #self.check_knowledge(self.knowledge)
 
             elif mine_cell_set is not None:
                 #iterate over cell and mark it
                 for mine_cell in mine_cell_set:
-                    add_mine.append(safe_cell)
+                    add_mine.append(mine_cell)
                     #self.mark_mine(mine_cell)
 
                 for cell in add_mine:
                     self.mark_mine(cell)
+                    #self.check_knowledge(self.knowledge)

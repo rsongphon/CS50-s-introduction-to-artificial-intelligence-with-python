@@ -1,5 +1,6 @@
 import itertools
 import random
+import copy
 
 
 class Minesweeper():
@@ -276,56 +277,6 @@ class MinesweeperAI():
         # based on the value of `cell` and `count`
         
         '''
-        def neighbour_cell(self,cell):
-
-            neighbour_set = set()
-
-            '''
-            Return a set of neighbour 3x3 cell 
-            
-            '''
-
-            # cell is upler (i,j)
-            # cell[0] = i = row , cell[1] =  j = column
-            # board index must be 0 to  
-
-            # iterate over cell
-            '''
-            Function range(a,b) return value from a to but not include b
-            ex: cell = (4 , 5)
-
-            i = 4
-            j = 5
-
-            row above = 3
-            row below = 5
-
-            range() must be (3,6) from row 3 to row 5 (not include 6)
-
-            so it is range (cell[0] - 1 , cell[0]+2)
-
-            '''
-            for i in range(cell[0]-1,cell[0]+2): # row
-                for j in range(cell[1]-1,cell[1]+2):
-
-                    # not inclue the cell it self
-                    if (i,j) == cell:
-                        continue
-
-                    '''
-                    cell must in the region of  the board
-                    that is 
-                    row  >= 0 (row[0]) but < self.height ex: 0-7
-                    column >= 0 (row[0]) but < self.width  ex: 0-7
-                    '''
-
-                    if (0 <= i <= self.height) and (0 <= j <= self.width):
-                        # Be sure to only include cells whose state is still undetermined in the sentence
-                        if (cell in self.mines) or (cell in self.safes):
-                            pass
-                        neighbour_set.add((i,j))
-            
-            return neighbour_set
 
         near_cell_set = self.neighbour_cell(cell)
         new_sentence = Sentence(near_cell_set,count)
@@ -343,22 +294,6 @@ class MinesweeperAI():
         Iterate over sentence in knowledge base
         and call method known_mines() and known_mines() to check if it can be mark as safe or mine
         '''
-
-        def check_knowledge(self,knowledge):
-            for sentence in knowledge:
-                # Return the set of cell that is safe or mine : None otherwise
-                safe_cell_set = sentence.known_safes()
-                mine_cell_set = sentence.known_mines()
-
-                if safe_cell_set is not None:
-                    #iterate over cell and mark it
-                    for safe_cell in safe_cell_set:
-                        self.mark_safe(safe_cell)
-
-                elif mine_cell_set is not None:
-                    #iterate over cell and mark it
-                    for mine_cell in mine_cell_set:
-                        self.mark_mine(mine_cell)
 
 
         self.check_knowledge(self.knowledge)
@@ -388,14 +323,18 @@ class MinesweeperAI():
                     new_set = compare_sentence.cells - sentence.cells
                     new_count = compare_sentence.count - sentence.count
                     add_sentence =  Sentence(new_set,new_count)
-                    new_infer_knowledge.append(new_infer_knowledge)
+                    new_infer_knowledge.append(add_sentence)
 
             # After get new sentence ->>> append to knowledge base
+        
 
-            self.knowledge = self.knowledge + new_infer_knowledge
-
-            self.check_knowledge(self.knowledge) # check again for new inference
-
+        #self.knowledge = self.knowledge + new_infer_knowledge
+        
+        if len(new_infer_knowledge) != 0:
+            print('inference')
+            self.check_knowledge(new_infer_knowledge) # check again for new inference
+            #self.knowledge = self.knowledge + new_infer_knowledge
+        
 
     def make_safe_move(self):
         """
@@ -445,3 +384,89 @@ class MinesweeperAI():
 
         random_index = random.randint(0,len(rand_cell)-1)
         return rand_cell[random_index]
+
+    def neighbour_cell(self,cell):
+
+        neighbour_set = set()
+
+        '''
+        Return a set of neighbour 3x3 cell 
+        
+        '''
+
+        # cell is upler (i,j)
+        # cell[0] = i = row , cell[1] =  j = column
+        # board index must be 0 to  
+
+        # iterate over cell
+        '''
+        Function range(a,b) return value from a to but not include b
+        ex: cell = (4 , 5)
+
+        i = 4
+        j = 5
+
+        row above = 3
+        row below = 5
+
+        range() must be (3,6) from row 3 to row 5 (not include 6)
+
+        so it is range (cell[0] - 1 , cell[0]+2)
+
+        '''
+        for i in range(cell[0]-1,cell[0]+2): # row
+            for j in range(cell[1]-1,cell[1]+2):
+
+                # not inclue the cell it self
+                if (i,j) == cell:
+                    continue
+
+                '''
+                cell must in the region of  the board
+                that is 
+                row  >= 0 (row[0]) but < self.height ex: 0-7
+                column >= 0 (row[0]) but < self.width  ex: 0-7
+                '''
+
+                if (0 <= i <= self.height) and (0 <= j <= self.width):
+                    # Be sure to only include cells whose state is still undetermined in the sentence
+                    if (cell in self.mines) or (cell in self.safes):
+                        pass
+                    neighbour_set.add((i,j))
+        
+        return neighbour_set
+
+    def check_knowledge(self,knowledge):
+
+        # copies the knowledge to operate on copy
+        knowledge_copy = copy.deepcopy(knowledge)
+
+        for sentence in knowledge_copy:
+            # Return the set of cell that is safe or mine : None otherwise
+            safe_cell_set = sentence.known_safes()
+            mine_cell_set = sentence.known_mines()
+
+            add_safe = []
+            add_mine = []
+            
+
+            if safe_cell_set is not None:
+                #iterate over cell and mark it
+                for safe_cell in safe_cell_set:
+                    add_safe.append(safe_cell)
+                    #self.mark_safe(safe_cell)
+                
+                for cell in add_safe:
+                    self.mark_safe(cell)
+                    
+                    #self.check_knowledge(self.knowledge)
+
+            elif mine_cell_set is not None:
+                #iterate over cell and mark it
+                for mine_cell in mine_cell_set:
+                    add_mine.append(mine_cell)
+                    #self.mark_mine(mine_cell)
+
+                for cell in add_mine:
+                    self.mark_mine(cell)
+                    #self.check_knowledge(self.knowledge)
