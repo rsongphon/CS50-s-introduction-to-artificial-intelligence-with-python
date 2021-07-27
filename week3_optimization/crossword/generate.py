@@ -348,16 +348,56 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-
+        ''' # first implement
         for var in self.crossword.variables:
             if var in assignment:
                 continue
             else:
                 return var
         return None
+        '''
 
-    
+        # choose variable that have fewest number of remaining values in its domain
+        smallest_domain = 999
+
+        for var in self.crossword.variables:
+            if var in assignment:
+                continue
+            else:
+                if len(self.domains[var]) <= smallest_domain:
+                    smallest_domain = len(self.domains[var])
         
+        # create list of variable that has smallest number
+        smallest_var = []
+        for var in self.crossword.variables:
+            if var in assignment:
+                continue
+            else:
+                if len(self.domains[var]) == smallest_domain:
+                    smallest_var.append(var)
+        
+        # if it has one variable, return it
+        if len(smallest_var) == 1:
+            return smallest_var[0]
+        # if has a tie > choose among whichever among those variables has the largest degree (has the most neighbors).
+        else:
+            highest_degree = 0
+            for var in smallest_var:
+                neighbour = self.crossword.neighbors(var)
+                if len(neighbour) >= highest_degree:
+                    highest_degree = len(neighbour)
+            
+            highest_degree_var = []
+            for var in smallest_var:
+                neighbour = self.crossword.neighbors(var)
+                if len(neighbour) == highest_degree:
+                    highest_degree_var.append(var)
+            
+            if len(highest_degree_var) == 1:
+                return highest_degree_var[0]
+            else:
+                return highest_degree_var.pop()
+                
 
     def backtrack(self, assignment):
         """
@@ -379,6 +419,7 @@ class CrosswordCreator():
         domain = self.order_domain_values(var,assignment)
 
         for word in domain:
+            print(f'Variable: {var} Try word : {word}')
             new_assignment = assignment.copy()
             new_assignment[var] = word
 
