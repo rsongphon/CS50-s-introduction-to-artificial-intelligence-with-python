@@ -308,8 +308,36 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
+        '''
         # implementing first for random order
         domain_list = list(self.domains[var])
+        return domain_list
+        '''
+        domain_list = []
+        elim_count = {}
+        #print(self.domains[var])
+        for word in self.domains[var]:
+            eliminate = 0
+
+            # if choose this word how much contrains put in neighbour ?
+            # count how many word eliminate from other value domain
+
+            # first check for neighbour
+            neighbour = self.crossword.neighbors(var)
+            for neighbour in neighbour:
+                if neighbour in assignment:
+                    continue
+                i ,j  = self.crossword.overlaps[var,neighbour]
+                for neighbour_word in self.domains[neighbour]:
+                    if word[i] != neighbour_word[j]:
+                        eliminate += 1
+            
+            elim_count[word] = eliminate
+
+        elim_count_sort = {k: v for k, v in sorted(elim_count.items(), key=lambda item: item[1])}
+        for key in elim_count_sort:
+            domain_list.append(key)
+
         return domain_list
 
     def select_unassigned_variable(self, assignment):
