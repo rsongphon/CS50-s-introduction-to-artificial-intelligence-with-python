@@ -105,6 +105,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# datasetpic
+.ppm
+
 # mypy
 .mypy_cache/
 .dmypy.json
@@ -113,3 +116,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 week4_learning/shopping/.~lock.shopping.csv#
+*.ppm
