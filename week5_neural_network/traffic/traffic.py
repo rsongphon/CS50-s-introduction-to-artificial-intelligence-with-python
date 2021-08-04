@@ -3,10 +3,11 @@ import numpy as np
 import os
 import sys
 import tensorflow as tf
+import pickle
 
 from sklearn.model_selection import train_test_split
 
-EPOCHS = 10
+EPOCHS = 30
 IMG_WIDTH = 30
 IMG_HEIGHT = 30
 NUM_CATEGORIES = 43
@@ -58,16 +59,108 @@ def load_data(data_dir):
     be a list of integer labels, representing the categories for each of the
     corresponding `images`.
     """
-    raise NotImplementedError
-
-
+    
+    if os.path.exists(os.path.join(os.getcwd(),'data.pkl')):
+        print(f'Found data data.pkl : loading...')
+        with open(os.path.join(os.getcwd(),'data.pkl'),'rb') as file:
+            data = pickle.load(file)
+            print(len(data['images']),len(data['labels']))
+        return data['images'] , data['labels']
+    else:
+        print('Not found object data , loading...')
+        data = {}
+        images = []
+        labels = []
+        # iteration throug each folder in datadir
+        for categories in range(0,NUM_CATEGORIES):
+            pic_dir = os.path.join(data_dir,str(categories))
+            for pic in os.listdir(pic_dir):
+                pic_path = os.path.join(pic_dir,pic)
+                img = cv2.imread(pic_path)
+                size = (IMG_WIDTH,IMG_HEIGHT)
+                img = cv2.resize(img,size,interpolation = cv2.INTER_AREA)
+                print(f'Loading {pic} : label {categories}')
+                images.append(img)
+                labels.append(categories)
+        
+        data['images'] = images
+        data['labels'] = labels
+        
+        with open('data.pkl','wb') as file:
+            pickle.dump(data,file)
+        
+        return data['images'],data['labels']
+        
+    '''
+    print('Not found object data , loading...')
+    images = []
+    labels = []
+    # iteration throug each folder in datadir
+    for categories in range(0,NUM_CATEGORIES):
+        print(f'Labeling :{categories}')
+        pic_dir = os.path.join(data_dir,str(categories))
+        for pic in os.listdir(pic_dir):
+            pic_path = os.path.join(pic_dir,pic)
+            img = cv2.imread(pic_path)
+            size = (IMG_WIDTH,IMG_HEIGHT)
+            img = cv2.resize(img,size,interpolation = cv2.INTER_AREA)
+            #print(f'Loading {pic} : label {categories}')
+            images.append(img)
+            labels.append(categories)
+    
+    return images,labels
+    '''
 def get_model():
     """
     Returns a compiled convolutional neural network model. Assume that the
     `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
-    raise NotImplementedError
+    # Create a convolutional neural network
+    model = tf.keras.models.Sequential([
+
+        # Convolutional layer. Learn 32 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        # Convolutional layer. Learn 32 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        # Convolutional layer. Learn 32 filters using a 3x3 kernel
+        tf.keras.layers.Conv2D(
+            32, (3, 3), activation="relu", input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)
+        ),
+
+        # Max-pooling layer, using 2x2 pool size
+        tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
+
+        # Flatten units
+        tf.keras.layers.Flatten(),
+
+        # Add a hidden layer with dropout
+        tf.keras.layers.Dense(128, activation="relu"),
+        tf.keras.layers.Dropout(0.5),
+
+        # Add an output layer with output units for all 10 digits
+        tf.keras.layers.Dense(NUM_CATEGORIES, activation="softmax")
+    ])
+
+    # Train neural network
+    model.compile(
+        optimizer="adam",
+        loss="categorical_crossentropy",
+        metrics=["accuracy"]
+    )
+    return model
 
 
 if __name__ == "__main__":
